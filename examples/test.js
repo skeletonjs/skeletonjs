@@ -11,4 +11,11 @@ var App = React.createClass({
     }
 });
 
-ReactDOM.render(<App />, document.getElementById('app'));
+ReactDOM.render((
+    <div className="foo">
+        <span>hello2</span>
+        <span>
+            <b>hello</b>
+        </span>
+    </div>
+), document.getElementById('app'));

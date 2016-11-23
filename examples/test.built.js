@@ -60,7 +60,24 @@
 	    }
 	});
 
-	ReactDOM.render(React.createElement(App, null), document.getElementById('app'));
+	ReactDOM.render(React.createElement(
+	    'div',
+	    { className: 'foo' },
+	    React.createElement(
+	        'span',
+	        null,
+	        'hello2'
+	    ),
+	    React.createElement(
+	        'span',
+	        null,
+	        React.createElement(
+	            'b',
+	            null,
+	            'hello'
+	        )
+	    )
+	), document.getElementById('app'));
 
 /***/ },
 /* 1 */
@@ -79,18 +96,26 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	module.exports = {
-	    createElement: function createElement(component) {
-	        return new _node2.default(component);
+	    createElement: function createElement(component, attrs) {
+	        for (var _len = arguments.length, childen = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+	            childen[_key - 2] = arguments[_key];
+	        }
+
+	        return new _node2.default(component, attrs, childen);
 	    },
 	    createClass: _component.createComponent,
-	    render: _renderer.mount
+	    render: function render(node, container) {
+	        var foo = (0, _renderer.renderToDom)(node);
+	        console.log(foo);
+	        container.appendChild(foo);
+	    }
 	};
 
 /***/ },
 /* 2 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -100,28 +125,52 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+	var ATTR_NAMES = {
+	    acceptCharset: 'accept-charset',
+	    className: 'class',
+	    htmlFor: 'for',
+	    httpEquiv: 'http-equiv',
+	    autoCapitalize: 'autocapitalize',
+	    autoComplete: 'autocomplete',
+	    autoCorrect: 'autocorrect',
+	    autoFocus: 'autofocus',
+	    autoPlay: 'autoplay',
+	    encType: 'encoding',
+	    hrefLang: 'hreflang',
+	    radioGroup: 'radiogroup',
+	    spellCheck: 'spellcheck',
+	    srcDoc: 'srcdoc',
+	    srcSet: 'srcset',
+	    tabIndex: 'tabindex'
+	};
+
+	var NODE_TYPES = exports.NODE_TYPES = {
+	    TAG: 0,
+	    TEXT: 1,
+	    COMPONENT: 2
+	};
+
 	var Node = function () {
-	    function Node(Component, props, children) {
+	    function Node(ctor, attrs, children) {
 	        _classCallCheck(this, Node);
+
+	        this.ctor = ctor;
+	        this.attrs = attrs;
+	        this.children = children;
 	    }
 
 	    _createClass(Node, [{
-	        key: "key",
-	        value: function key(id) {
-	            this._key = id;
-	            return this;
+	        key: 'getType',
+	        value: function getType() {
+	            if (typeof this.ctor === 'string') {
+	                return NODE_TYPES.TAG;
+	            }
+	            return NODE_TYPES.COMPONENT;
 	        }
 	    }, {
-	        key: "attrs",
-	        value: function attrs(props) {
-	            this._props = props;
-	            return this;
-	        }
-	    }, {
-	        key: "children",
-	        value: function children(nodes) {
-	            this._children = nodes;
-	            return this;
+	        key: 'getAttrName',
+	        value: function getAttrName(key) {
+	            return ATTR_NAMES[key];
 	        }
 	    }]);
 
@@ -183,16 +232,54 @@
 
 /***/ },
 /* 5 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.mount = mount;
-	function mount(node, container) {
-	    console.log(node);
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+	exports.renderToDom = renderToDom;
+
+	var _node = __webpack_require__(2);
+
+	var _node2 = _interopRequireDefault(_node);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function renderToDom(node) {
+	    if (node instanceof _node2.default) {
+	        var _ret = function () {
+	            switch (node.getType()) {
+	                case _node.NODE_TYPES.TAG:
+	                    var domNode = document.createElement(node.ctor);
+
+	                    for (var i in node.attrs) {
+	                        var attrName = node.getAttrName(i);
+	                        if (attrName) {
+	                            domNode.setAttribute(attrName, String(node.attrs[i]));
+	                        }
+	                    }
+	                    node.children.map(function (node) {
+	                        return domNode.appendChild(renderToDom(node));
+	                    });
+	                    return {
+	                        v: domNode
+	                    };
+
+	                case _node.NODE_TYPES.COMPONENT:
+	                    return {
+	                        v: node.render()
+	                    };
+	            }
+	        }();
+
+	        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+	    }
+	    return document.createTextNode(node);
 	}
 
 /***/ }
