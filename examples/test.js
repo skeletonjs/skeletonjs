@@ -4,18 +4,11 @@ var ReactDOM = require('react-dom');
 var App = React.createClass({
     render() {
         return (
-            <div className="foo">
+            <div className="app">
                 {this.props.name}
             </div>
         );
     }
 });
 
-ReactDOM.render((
-    <div className="foo">
-        <span>hello2</span>
-        <span>
-            <b>hello</b>
-        </span>
-    </div>
-), document.getElementById('app'));
+ReactDOM.render(<div className="wrapper"><App name="hello" /></div>, document.getElementById('app'));

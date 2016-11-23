@@ -54,7 +54,7 @@
 	    render: function render() {
 	        return React.createElement(
 	            'div',
-	            { className: 'foo' },
+	            { className: 'app' },
 	            this.props.name
 	        );
 	    }
@@ -62,21 +62,8 @@
 
 	ReactDOM.render(React.createElement(
 	    'div',
-	    { className: 'foo' },
-	    React.createElement(
-	        'span',
-	        null,
-	        'hello2'
-	    ),
-	    React.createElement(
-	        'span',
-	        null,
-	        React.createElement(
-	            'b',
-	            null,
-	            'hello'
-	        )
-	    )
+	    { className: 'wrapper' },
+	    React.createElement(App, { name: 'hello' })
 	), document.getElementById('app'));
 
 /***/ },
@@ -105,9 +92,7 @@
 	    },
 	    createClass: _component.createComponent,
 	    render: function render(node, container) {
-	        var foo = (0, _renderer.renderToDom)(node);
-	        console.log(foo);
-	        container.appendChild(foo);
+	        container.appendChild((0, _renderer.renderToDom)(node));
 	    }
 	};
 
@@ -204,7 +189,10 @@
 	};
 
 	function createComponent(proto) {
-	    var ctor = function ctor(attrs, children) {};
+	    var ctor = function ctor(props, children) {
+	        this.props = props;
+	        this.props.children = children;
+	    };
 	    ctor.prototype = basePrototype;
 	    ctor.prototype.constructor = ctor;
 
@@ -272,7 +260,7 @@
 
 	                case _node.NODE_TYPES.COMPONENT:
 	                    return {
-	                        v: node.render()
+	                        v: renderToDom(new node.ctor(node.attrs, node.children).render())
 	                    };
 	            }
 	        }();
