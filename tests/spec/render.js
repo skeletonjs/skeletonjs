@@ -32,7 +32,7 @@ const tests = [
     ]
 ];
 
-describe('domRender', () => {
+describe('First DOM Render', () => {
     beforeEach(function() {
         const container = document.createElement('div');
         container.id = 'app';
@@ -48,10 +48,8 @@ describe('domRender', () => {
         const output = test[1];
 
         it('#' + i + ' : ' + output, function() {
-            const container = document.querySelector('#app');
             ReactDOM.render(input, this.container);
-
-            assert(container.innerHTML, output);
+            assert(this.container.innerHTML, output);
         });
     });
 })
