@@ -1,0 +1,1 @@
+require('./spec/domRender.js');
